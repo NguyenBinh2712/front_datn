@@ -29,8 +29,30 @@ export function hasRole(token: string | null, role: string): boolean {
   return getRolesFromToken(token).includes(role)
 }
 
+/** Giáo viên hoặc admin */
+export function isTeacherUser(token: string | null): boolean {
+  if (!token) return false
+  return hasRole(token, 'TEACHER') || hasRole(token, 'ADMIN')
+}
+
+/** Học sinh: có scope STUDENT, hoặc không phải TEACHER/ADMIN. */
+export function isStudentUser(token: string | null): boolean {
+  if (!token) return false
+  if (hasRole(token, 'STUDENT')) return true
+  return !hasRole(token, 'TEACHER') && !hasRole(token, 'ADMIN')
+}
+
+export function getHomePath(token: string | null): '/teacher' | '/' {
+  return isTeacherUser(token) ? '/teacher' : '/'
+}
+
 export function getUserIdFromToken(token: string | null): number | null {
   if (!token) return null
-  const id = decodeJwtPayload(token)?.userId
-  return typeof id === 'number' ? id : null
+  const payload = decodeJwtPayload(token)
+  if (typeof payload?.userId === 'number') return payload.userId
+  if (payload?.sub) {
+    const id = Number(payload.sub)
+    if (Number.isFinite(id)) return id
+  }
+  return null
 }

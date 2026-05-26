@@ -1,27 +1,19 @@
 import { useState } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchMyGroups, fetchSuggestedGroups, searchGroups } from "@/api/group";
+import { fetchMyGroups, searchGroups } from "@/api/group";
 import { css } from "@/lib/styles";
-import GroupCard from "@/components/group/groupCard";
-import CreateGroupModal from "./create-group-modal";
+import TeacherGroupCard from "@/components/group/teacherGroupCard";
+import CreateGroupModal from "../create-group-modal";
 
-export default function GroupsPage() {
+export default function TeacherGroupsPage() {
   const [searchInput, setSearchInput] = useState("");
   const [keyword, setKeyword] = useState("");
   const [showCreate, setShowCreate] = useState(false);
 
-  // 👉 tạm thời hardcode (vì backend chưa có hook user rõ ràng)
-  const isTeacher = true;
-
   const mine = useQuery({
     queryKey: ["groups-mine"],
     queryFn: fetchMyGroups,
-  });
-
-  const suggested = useQuery({
-    queryKey: ["groups-suggested"],
-    queryFn: fetchSuggestedGroups,
-    enabled: !keyword,
   });
 
   const searchResult = useQuery({
@@ -29,8 +21,6 @@ export default function GroupsPage() {
     queryFn: () => searchGroups(keyword, 20),
     enabled: keyword.trim().length > 1,
   });
-
-  const joinedIds = new Set(mine.data?.map((g) => g.id) ?? []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +39,6 @@ export default function GroupsPage() {
       )}
 
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 16px" }}>
-        {/* HEADER */}
         <div
           style={{
             display: "flex",
@@ -65,11 +54,11 @@ export default function GroupsPage() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "var(--accent)",
+                color: "#059669",
                 letterSpacing: "0.1em",
               }}
             >
-              CỘNG ĐỒNG HỌC TẬP
+              QUẢN LÝ NHÓM HỌC TẬP
             </p>
             <h1
               style={{
@@ -79,7 +68,7 @@ export default function GroupsPage() {
                 margin: 0,
               }}
             >
-              Nhóm của tôi
+              Nhóm giáo viên
             </h1>
           </div>
 
@@ -91,7 +80,6 @@ export default function GroupsPage() {
               flexWrap: "wrap",
             }}
           >
-            {/* SEARCH */}
             <form
               onSubmit={handleSearch}
               style={{
@@ -118,7 +106,7 @@ export default function GroupsPage() {
                 type="submit"
                 style={{
                   padding: "0 20px",
-                  background: "var(--accent)",
+                  background: "#059669",
                   color: "#fff",
                   border: "none",
                   fontWeight: 600,
@@ -128,33 +116,28 @@ export default function GroupsPage() {
               </button>
             </form>
 
-            {/* CREATE GROUP */}
-            {isTeacher && (
-              <button
-                onClick={() => setShowCreate(true)}
-                style={{
-                  padding: "10px 20px",
-                  background: "var(--accent)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 8,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                + Tạo nhóm
-              </button>
-            )}
+            <button
+              onClick={() => setShowCreate(true)}
+              style={{
+                padding: "10px 20px",
+                background: "#059669",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              + Tạo nhóm
+            </button>
           </div>
         </div>
 
-        {/* CONTENT */}
         {keyword ? (
           <section>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>
               Kết quả tìm kiếm cho "{keyword}"
             </h2>
-
             <div
               style={{
                 display: "grid",
@@ -163,22 +146,20 @@ export default function GroupsPage() {
               }}
             >
               {searchResult.data?.map((g) => (
-                <GroupCard
-                  key={g.id}
-                  group={g}
-                  isJoined={joinedIds.has(g.id)}
-                />
+                <TeacherGroupCard key={g.id} group={g} />
               ))}
             </div>
           </section>
         ) : (
-          <>
-            {/* MY GROUPS */}
-            <section style={{ marginBottom: 60 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>
-                Nhóm đã tham gia
-              </h2>
-
+          <section>
+            <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>
+              Nhóm tôi quản lý
+            </h2>
+            {mine.data?.length === 0 ? (
+              <p style={{ color: "var(--text-muted)" }}>
+                Chưa có nhóm nào. Bấm &quot;+ Tạo nhóm&quot; để bắt đầu.
+              </p>
+            ) : (
               <div
                 style={{
                   display: "grid",
@@ -187,32 +168,11 @@ export default function GroupsPage() {
                 }}
               >
                 {mine.data?.map((g) => (
-                  <GroupCard key={g.id} group={g} isJoined />
+                  <TeacherGroupCard key={g.id} group={g} />
                 ))}
               </div>
-            </section>
-
-            {/* SUGGESTED */}
-            <section>
-              <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>
-                Gợi ý cho bạn
-              </h2>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                  gap: 16,
-                }}
-              >
-                {suggested.data
-                  ?.filter((g) => !joinedIds.has(g.id))
-                  .map((g) => (
-                    <GroupCard key={g.id} group={g} />
-                  ))}
-              </div>
-            </section>
-          </>
+            )}
+          </section>
         )}
       </div>
     </>

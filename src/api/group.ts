@@ -1,4 +1,5 @@
 import { http } from "@/api/http";
+import { getPendingJoinGroupIds } from "@/lib/pending-join-storage";
 import type {
   ApiResponse,
   GroupResponse,
@@ -7,8 +8,6 @@ import type {
   PostResponse,
   Slice,
 } from "@/types/models";
-
-//  Types
 
 export interface GroupCreateRequest {
   name: string;
@@ -28,6 +27,57 @@ export interface ChangeRoleRequest {
   newRole: "MEMBER" | "MODERATOR";
 }
 
+function formatDateTime(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && value.length >= 3) {
+    const [y, m, d, h = 0, min = 0, s = 0] = value as number[];
+    return new Date(y, m - 1, d, h, min, s).toISOString();
+  }
+  return String(value);
+}
+
+function normalizeJoinRequest(
+  raw: Record<string, unknown>,
+): JoinRequestResponse {
+  const status = String(raw.status ?? "PENDING").toUpperCase();
+  const inviterName = raw.inviterName;
+  return {
+    id: Number(raw.id),
+    groupId: raw.groupId != null ? Number(raw.groupId) : undefined,
+    userId: Number(raw.userId),
+    userName: String(raw.userName ?? "Học sinh"),
+    inviterId: raw.inviterId != null ? Number(raw.inviterId) : 0,
+    inviterName:
+      inviterName != null && String(inviterName) !== "null"
+        ? String(inviterName)
+        : "",
+    status: status as JoinRequestResponse["status"],
+    requestedAt: formatDateTime(raw.requestedAt),
+    reviewedAt: raw.reviewedAt
+      ? formatDateTime(raw.reviewedAt)
+      : undefined,
+  };
+}
+
+function normalizeJoinRequestList(raw: unknown): JoinRequestResponse[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) {
+    return raw.map((item) =>
+      normalizeJoinRequest(item as Record<string, unknown>),
+    );
+  }
+  if (typeof raw === "object" && raw !== null && "content" in raw) {
+    const content = (raw as { content: unknown }).content;
+    if (Array.isArray(content)) {
+      return content.map((item) =>
+        normalizeJoinRequest(item as Record<string, unknown>),
+      );
+    }
+  }
+  return [];
+}
+
 //  1. Tạo nhóm mới
 
 export async function createGroup(
@@ -44,7 +94,26 @@ export async function createGroup(
 //  2. Gửi yêu cầu tham gia nhóm
 
 export async function requestToJoinGroup(groupId: number): Promise<void> {
-  await http.post(`/groups/${groupId}/join-request`);
+  await http.post(`/groups/${groupId}/join-request`, null, {
+    skipErrorToast: true,
+  });
+}
+
+//  2b. Học sinh: đã gửi yêu cầu (lưu local sau POST thành công)
+
+export async function hasPendingJoinRequest(groupId: number): Promise<boolean> {
+  return getPendingJoinGroupIds().has(groupId);
+}
+
+export async function fetchMyPendingJoinGroupIds(): Promise<number[]> {
+  return [...getPendingJoinGroupIds()];
+}
+
+export async function syncPendingJoinGroupIds(
+  groupIds: number[],
+): Promise<number[]> {
+  const stored = getPendingJoinGroupIds();
+  return groupIds.filter((id) => stored.has(id));
 }
 
 //  3. Hủy yêu cầu tham gia
@@ -122,15 +191,19 @@ export async function transferOwnership(
   await http.put(`/groups/${groupId}/transfer-ownership/${newOwnerId}`);
 }
 
-//  13. Lấy danh sách yêu cầu đang chờ (owner)
+//  13. GET /groups/{groupId}/pending-requests — danh sách học sinh chờ duyệt (chủ nhóm)
 
 export async function fetchPendingJoinRequests(
   groupId: number,
+  options?: { skipErrorToast?: boolean },
 ): Promise<JoinRequestResponse[]> {
   const { data } = await http.get<ApiResponse<JoinRequestResponse[]>>(
     `/groups/${groupId}/pending-requests`,
+    { skipErrorToast: options?.skipErrorToast },
   );
-  return data.result ?? [];
+  return normalizeJoinRequestList(data.result).filter(
+    (r) => r.status === "PENDING" && Number.isFinite(r.id) && r.id > 0,
+  );
 }
 
 //  14. Lấy danh sách thành viên

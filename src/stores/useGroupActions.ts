@@ -13,6 +13,11 @@ import {
   rejectJoinRequest,
   transferOwnership,
 } from "@/api/group";
+import { isJoinRequestConflict } from "@/lib/http-errors";
+import {
+  addPendingJoinGroup,
+  removePendingJoinGroup,
+} from "@/lib/pending-join-storage";
 
 export function useGroupActions(groupId: number) {
   const qc = useQueryClient();
@@ -23,21 +28,24 @@ export function useGroupActions(groupId: number) {
     qc.invalidateQueries({ queryKey: ["group-members", groupId] });
     qc.invalidateQueries({ queryKey: ["group-requests", groupId] });
     qc.invalidateQueries({ queryKey: ["groups-mine"] });
+    qc.invalidateQueries({ queryKey: ["my-pending-join-groups"] });
+    qc.invalidateQueries({ queryKey: ["my-join-request", groupId] });
+    qc.invalidateQueries({ queryKey: ["group-requests", groupId] });
   };
 
   return {
     joinGroup: async (setJoinSent: (value: boolean) => void) => {
       try {
         await requestToJoinGroup(groupId);
+        addPendingJoinGroup(groupId);
         setJoinSent(true);
         invalidateAll();
         alert("✅ Đã gửi yêu cầu tham gia nhóm!");
-      } catch (error: any) {
-        if (error.response?.status === 409) {
-          alert(
-            "Bạn đã gửi yêu cầu tham gia hoặc đã là thành viên của nhóm này.",
-          );
-          setJoinSent(true); // vẫn hiện trạng thái đã gửi
+      } catch (error: unknown) {
+        if (isJoinRequestConflict(error)) {
+          addPendingJoinGroup(groupId);
+          setJoinSent(true);
+          invalidateAll();
         } else {
           console.error(error);
           alert("Có lỗi xảy ra khi gửi yêu cầu.");
@@ -48,6 +56,7 @@ export function useGroupActions(groupId: number) {
     cancelJoinRequest: async (setJoinSent: (value: boolean) => void) => {
       try {
         await cancelJoinRequest(groupId);
+        removePendingJoinGroup(groupId);
         setJoinSent(false);
         invalidateAll();
         alert("Đã hủy yêu cầu tham gia.");

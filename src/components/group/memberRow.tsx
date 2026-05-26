@@ -30,6 +30,7 @@ type MemberRowProps = {
   m: GroupMemberResponse;
   isOwner: boolean;
   currentUserId: number;
+  groupOwnerId?: number;
   onKick: (id: number) => void;
   onChangeRole: (id: number, role: "MEMBER" | "MODERATOR") => void;
   onTransferOwnership?: (id: number, name: string) => void;
@@ -39,11 +40,21 @@ export default function MemberRow({
   m,
   isOwner,
   currentUserId,
+  groupOwnerId,
   onKick,
   onChangeRole,
   onTransferOwnership,
 }: MemberRowProps) {
   const isSelf = m.userId === currentUserId;
+  const isGroupOwnerUser =
+    groupOwnerId != null
+      ? m.userId === groupOwnerId
+      : m.role === "OWNER";
+  const displayRole: Role = isGroupOwnerUser
+    ? "OWNER"
+    : m.role === "MODERATOR"
+      ? "MODERATOR"
+      : "MEMBER";
 
   return (
     <div
@@ -85,12 +96,12 @@ export default function MemberRow({
             )}
           </div>
 
-          <RoleBadge role={m.role} />
+          <RoleBadge role={displayRole} />
         </div>
       </div>
 
       {/* RIGHT ACTIONS */}
-      {isOwner && !isSelf && m.role !== "OWNER" && (
+      {isOwner && !isSelf && !isGroupOwnerUser && (
         <div style={{ display: "flex", gap: 6 }}>
           {/* MODERATOR <-> MEMBER toggle (FIXED) */}
           <SmallBtn

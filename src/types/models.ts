@@ -52,7 +52,7 @@ export type GroupPrivacy = "PUBLIC" | "PRIVATE";
 
 export type MembershipRole = "OWNER" | "MODERATOR" | "MEMBER";
 
-export type JoinRequestStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+export type JoinRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export type ReportReason =
   | "SPAM"
@@ -257,6 +257,7 @@ export type GroupMemberResponse = {
 
 export type JoinRequestResponse = {
   id: number;
+  groupId?: number;
   userId: number;
   userName: string;
   inviterId: number;

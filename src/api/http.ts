@@ -10,6 +10,8 @@ declare module "axios" {
     skipAuth?: boolean;
     /** Không thử refresh khi 401 */
     skipRefresh?: boolean;
+    /** Không hiện toast lỗi */
+    skipErrorToast?: boolean;
   }
 }
 
@@ -85,12 +87,17 @@ http.interceptors.response.use(
       useAuthStore.getState().clear();
       toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
       window.dispatchEvent(new CustomEvent("datn:session-expired"));
-    } else if (status && status >= 400) {
-      toast.error(
-        typeof backendMsg === "string" && backendMsg
-          ? backendMsg
-          : "Đã có lỗi xảy ra",
-      );
+    } else if (status && status >= 400 && !original?.skipErrorToast) {
+      const url = original?.url ?? "";
+      const isJoinConflict =
+        status === 409 && url.includes("/join-request");
+      if (!isJoinConflict) {
+        toast.error(
+          typeof backendMsg === "string" && backendMsg
+            ? backendMsg
+            : "Đã có lỗi xảy ra",
+        );
+      }
     }
 
     return Promise.reject(error);
