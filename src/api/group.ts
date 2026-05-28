@@ -225,6 +225,14 @@ export async function fetchMyGroups(): Promise<GroupResponse[]> {
   return data.result ?? [];
 }
 
+//  15b. Lấy tất cả nhóm (admin)
+
+export async function fetchAllGroups(): Promise<GroupResponse[]> {
+  const { data } =
+    await http.get<ApiResponse<GroupResponse[]>>("/groups/all");
+  return data.result ?? [];
+}
+
 //  16. Lấy chi tiết nhóm
 
 export async function fetchGroupDetail(

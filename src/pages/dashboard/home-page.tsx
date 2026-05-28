@@ -170,7 +170,7 @@ export function DashboardHomePage() {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <Link
-              to="/admin"
+              to="/teacher/admin"
               className="rounded-3xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-950"
             >
               <p className="text-sm font-semibold">Xem bảng điều khiển Admin</p>
@@ -179,7 +179,7 @@ export function DashboardHomePage() {
               </p>
             </Link>
             <Link
-              to="/admin/quizzes"
+              to="/teacher/admin/quizzes"
               className="rounded-3xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-950"
             >
               <p className="text-sm font-semibold">Duyệt quiz</p>

@@ -2,14 +2,10 @@ import { http } from "@/api/http";
 
 import type {
   ApiResponse,
-  AuthResponse,
   ChangePasswordRequest,
   ForgotPasswordRequest,
   OtpRequest,
-  Page,
   ProfileRequest,
-  ProfileResponse,
-  RefreshRequest,
   ResendOtpRequest,
   UserCreateRequest,
   UserResponse,
@@ -107,28 +103,28 @@ export async function getUserById(id: number): Promise<UserResponse> {
   return data.result;
 }
 
+/** GET /user?page=&size= — backend trả về List<UserResponse> (không phải Page) */
 export async function getAllUsers(
   page = 0,
   size = 20,
-): Promise<Page<UserResponse>> {
-  const { data } = await http.get<ApiResponse<Page<UserResponse>>>("/user", {
-    params: {
-      page,
-      size,
-    },
+): Promise<{
+  content: UserResponse[];
+  page: number;
+  size: number;
+  hasMore: boolean;
+}> {
+  const { data } = await http.get<ApiResponse<UserResponse[]>>("/user", {
+    params: { page, size },
   });
 
-  return (
-    data.result ?? {
-      content: [],
-      totalElements: 0,
-      totalPages: 0,
-      number: page,
-      size,
-      first: true,
-      last: true,
-    }
-  );
+  const content = data.result ?? [];
+
+  return {
+    content,
+    page,
+    size,
+    hasMore: content.length >= size,
+  };
 }
 
 export async function deleteUser(id: number): Promise<void> {

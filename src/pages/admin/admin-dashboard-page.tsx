@@ -3,11 +3,11 @@ import { Link, NavLink } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 
 const adminNav = [
-  { label: "Tổng quan", to: "/admin" },
-  { label: "Người dùng", to: "/admin/users" },
-  { label: "Bài viết", to: "/admin/posts" },
-  { label: "Duyệt quiz", to: "/admin/quizzes" },
-  { label: "Nhóm học tập", to: "/admin/groups" },
+  { label: "Tổng quan", to: "/teacher/admin" },
+  { label: "Người dùng", to: "/teacher/admin/users" },
+  { label: "Bài viết", to: "/teacher/admin/posts" },
+  { label: "Duyệt quiz", to: "/teacher/admin/quizzes" },
+  { label: "Nhóm học tập", to: "/teacher/admin/groups" },
 ];
 
 export function AdminDashboardPage() {
@@ -78,13 +78,13 @@ export function AdminDashboardPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link
-                  to="/admin/quizzes"
+                  to="/teacher/admin/quizzes"
                   className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
                 >
                   Duyệt quiz
                 </Link>
                 <Link
-                  to="/admin/users"
+                  to="/teacher/admin/users"
                   className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
                 >
                   Quản lý người dùng
@@ -94,7 +94,7 @@ export function AdminDashboardPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <Link to="/admin/users">
+            <Link to="/teacher/admin/users">
               <Card className="space-y-3 p-6 cursor-pointer transition hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800">
                 <div className="flex items-center justify-between">
                   <div>
@@ -114,7 +114,7 @@ export function AdminDashboardPage() {
                 </p>
               </Card>
             </Link>
-            <Link to="/admin/posts">
+            <Link to="/teacher/admin/posts">
               <Card className="space-y-3 p-6 cursor-pointer transition hover:shadow-md hover:border-red-200 dark:hover:border-red-800">
                 <div className="flex items-center justify-between">
                   <div>
@@ -134,7 +134,7 @@ export function AdminDashboardPage() {
                 </p>
               </Card>
             </Link>
-            <Link to="/admin/quizzes">
+            <Link to="/teacher/admin/quizzes">
               <Card className="space-y-3 p-6 cursor-pointer transition hover:shadow-md hover:border-cyan-200 dark:hover:border-cyan-800">
                 <div className="flex items-center justify-between">
                   <div>
@@ -154,7 +154,7 @@ export function AdminDashboardPage() {
                 </p>
               </Card>
             </Link>
-            <Link to="/admin/groups">
+            <Link to="/teacher/admin/groups">
               <Card className="space-y-3 p-6 cursor-pointer transition hover:shadow-md hover:border-purple-200 dark:hover:border-purple-800">
                 <div className="flex items-center justify-between">
                   <div>
@@ -192,7 +192,7 @@ export function AdminDashboardPage() {
                 </div>
               </div>
               <Link
-                to="/users"
+                to="/teacher/admin/users"
                 className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800 dark:border-slate-700 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200"
               >
                 Mở ngay
@@ -214,13 +214,13 @@ export function AdminDashboardPage() {
               </div>
               <div className="grid gap-3">
                 <Link
-                  to="/admin/quizzes"
+                  to="/teacher/admin/quizzes"
                   className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
                 >
                   Duyệt quiz
                 </Link>
                 <Link
-                  to="/feed"
+                  to="/teacher/feed"
                   className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
                 >
                   Kiểm tra bài viết
@@ -240,7 +240,7 @@ export function AdminDashboardPage() {
                 </h2>
               </div>
               <Link
-                to="/admin/quizzes"
+                to="/teacher/admin/quizzes"
                 className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
               >
                 Duyệt ngay

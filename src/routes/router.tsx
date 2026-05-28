@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider, useLocation } from "react-router-dom";
 import { StudentDashboardLayout } from "@/components/layout/student-dashboard-layout";
 import { TeacherDashboardLayout } from "@/components/layout/teacher-dashboard-layout";
 import { AdminDashboardPage } from "@/pages/admin/admin-dashboard-page";
@@ -38,6 +38,13 @@ import {
   TeacherProtectedRoute,
 } from "@/routes/guards";
 import { RoleRoute } from "@/routes/role-route";
+
+function RedirectToTeacherAdmin() {
+  const { pathname, search, hash } = useLocation();
+  return (
+    <Navigate to={`/teacher${pathname}${search}${hash}`} replace />
+  );
+}
 
 const studentRoutes = [
   { index: true, element: <DashboardHomePage /> },
@@ -177,6 +184,10 @@ const router = createBrowserRouter([
         <ForgotPasswordPage />
       </GuestRoute>
     ),
+  },
+  {
+    path: "/admin/*",
+    element: <RedirectToTeacherAdmin />,
   },
   {
     path: "/",
